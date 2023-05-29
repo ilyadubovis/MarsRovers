@@ -4,8 +4,19 @@ using MarsRovers.Infrastructure;
 
 ILogger logger = new ConsoleLogger();
 
-Directory.GetFiles(@"..\..\..\App_Data").ToList()
-    .ForEach(file => ProcessInputFile(file));
+// Assumption: Input files are '*.txt' files located in the App_Data folder 
+const string inputFolder = @"..\..\..\App_Data";
+
+if(Directory.Exists(inputFolder))
+{
+    var inputFiles = Directory.GetFiles(inputFolder, "*.txt").ToList();
+    if(inputFiles.Any())
+        inputFiles.ForEach(file => ProcessInputFile(file));
+    else
+        logger.Log($"Folder '{inputFolder}' does not contain input files.\n");
+}
+else
+    logger.Log($"Input folder '{inputFolder}' does not exist.\n");
 
 Console.WriteLine("Press any key to continue...");
 Console.ReadKey();
@@ -19,7 +30,8 @@ void ProcessInputFile(string inputFile)
     {
         try
         {
-            var explorationArea = new ExplorationArea(inputLines.Dequeue());
+            // 1st line contains exploration area coordinates and expected to be present in an input file
+            var explorationArea = new ExplorationArea(inputLines.Dequeue()); 
             while (true)
             {
                 if (inputLines.TryDequeue(out string? initialStateSting) && initialStateSting != default)
