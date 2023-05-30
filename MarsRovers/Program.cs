@@ -4,12 +4,12 @@ using MarsRovers.Infrastructure;
 
 ILogger logger = new ConsoleLogger();
 
-// Assumption: Input files are '*.txt' files located in the App_Data folder 
+// Assumption: Input files are 'input*.txt' files located in the App_Data folder 
 const string inputFolder = @"..\..\..\App_Data";
 
 if(Directory.Exists(inputFolder))
 {
-    var inputFiles = Directory.GetFiles(inputFolder, "*.txt").ToList();
+    var inputFiles = Directory.GetFiles(inputFolder, "input*.txt").ToList();
     if(inputFiles.Any())
         inputFiles.ForEach(file => ProcessInputFile(file));
     else
@@ -26,8 +26,13 @@ void ProcessInputFile(string inputFile)
     logger.Log($"* Processing input from {new FileInfo(inputFile).Name}...");
 
     var inputLines = new Queue<string>(File.ReadAllLines(inputFile));
+    logger.Log("INPUT:");
+    foreach(var line in inputLines)
+        logger.Log(line);
+
     if (inputLines.Any())
     {
+        logger.Log("Processing rover commands...");
         try
         {
             // 1st line contains exploration area coordinates and expected to be present in an input file
@@ -41,7 +46,7 @@ void ProcessInputFile(string inputFile)
                     if (inputLines.TryDequeue(out string? actionChainString) && actionChainString != default)
                     {
                         rover.ExecuteActionChain(new ActionChain(actionChainString));
-                        logger.Log($"{rover.State}\n");
+                        logger.Log($"OUTPUT:\n{rover.State}\n");
                     }
                     else
                         break;
